@@ -1,0 +1,8 @@
+{
+  "name": "প্রিয় চৌদ্দগ্রাম",
+  "description": "চৌদ্দগ্রাম উপজেলার সামগ্রিক তথ্য, ইউনিয়ন পরিচিতি, সরকারি নোটিশ ও স্থানীয় সেবাসমূহের নির্ভরযোগ্য ডিজিটাল প্ল্যাটফর্ম",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

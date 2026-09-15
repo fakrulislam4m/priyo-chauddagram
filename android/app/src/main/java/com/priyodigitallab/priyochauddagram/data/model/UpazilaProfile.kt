@@ -1,0 +1,31 @@
+package com.priyodigitallab.priyochauddagram.data.model
+
+data class UpazilaProfile(
+    val id: String = "chauddagram_profile",
+    val name_bn: String = "চৌদ্দগ্রাম",
+    val name_en: String = "Chauddagram",
+    val district_bn: String = "কুমিল্লা",
+    val district_en: String = "Cumilla",
+    val division_bn: String = "চট্টগ্রাম",
+    val division_en: String = "Chattogram",
+    val tagline_bn: String = "আমাদের উপজেলা, আমাদের গর্ব",
+    val tagline_en: String = "Our Upazila, Our Pride",
+    val description_bn: String = "",
+    val description_en: String = "",
+    val history_bn: String = "",
+    val history_en: String = "",
+    val geography_bn: String = "",
+    val geography_en: String = "",
+    val administration_bn: String = "",
+    val administration_en: String = "",
+    val municipality_count: Int = 1,
+    val union_count: Int = 13,
+    val population_information: String = "",
+    val important_places_bn: String = "",
+    val important_places_en: String = "",
+    val map_url: String = "",
+    val official_website_url: String = "https://chauddagram.comilla.gov.bd",
+    val publication_status: String = "Published",
+    val updated_at: String = "",
+    val updated_by: String = "Fakrul Islam"
+)

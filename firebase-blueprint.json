@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "CommunityChatMessage": {
+      "title": "CommunityChatMessage",
+      "description": "Live real-time chat message for Chauddagram community adda",
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Content of the chat message"
+        },
+        "sender_name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Display name of the user"
+        },
+        "sender_union": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Union of the sender"
+        },
+        "sender_id": {
+          "type": "string",
+          "description": "User identifier"
+        },
+        "sender_email": {
+          "type": "string",
+          "description": "Email if logged in"
+        },
+        "is_admin": {
+          "type": "boolean",
+          "description": "Flag indicating admin sender"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "ISO timestamp of creation"
+        },
+        "pinned": {
+          "type": "boolean",
+          "description": "Whether message is pinned"
+        },
+        "likes_count": {
+          "type": "number",
+          "description": "Count of likes received"
+        }
+      },
+      "required": [
+        "text",
+        "sender_name",
+        "created_at"
+      ]
+    }
+  },
+  "firestore": {
+    "/community_chat/{messageId}": {
+      "schema": "CommunityChatMessage",
+      "description": "Live adda chat messages from Chauddagram residents"
+    }
+  }
+}

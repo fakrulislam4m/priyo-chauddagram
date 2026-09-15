@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>প্রিয় চৌদ্দগ্রাম</title>
+    <meta name="description" content="চৌদ্দগ্রাম উপজেলার সামগ্রিক তথ্য, ইউনিয়ন পরিচিতি, সরকারি নোটিশ ও স্থানীয় সেবাসমূহের নির্ভরযোগ্য ডিজিটাল প্ল্যাটফর্ম" />
+    <meta property="og:title" content="প্রিয় চৌদ্দগ্রাম" />
+    <meta property="og:description" content="চৌদ্দগ্রাম উপজেলার সামগ্রিক তথ্য, ইউনিয়ন পরিচিতি, সরকারি নোটিশ ও স্থানীয় সেবাসমূহের নির্ভরযোগ্য ডিজিটাল প্ল্যাটফর্ম" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      (function() {
+        try {
+          var win = typeof window !== 'undefined' ? window : null;
+          if (!win) return;
+
+          // 1. Error interceptor to gracefully capture and silence any getter-only fetch property errors
+          win.addEventListener('error', function(event) {
+            if (event && event.message && event.message.indexOf('fetch') !== -1 && event.message.indexOf('getter') !== -1) {
+              if (typeof event.preventDefault === 'function') event.preventDefault();
+              if (typeof event.stopPropagation === 'function') event.stopPropagation();
+              return true;
+            }
+          }, true);
+
+          // 2. Ensure window.fetch has a working setter so monkey-patching or proxy assignments succeed safely
+          var originalFetch = win.fetch ? win.fetch.bind(win) : null;
+          var activeFetch = originalFetch;
+
+          var desc = null;
+          try {
+            desc = Object.getOwnPropertyDescriptor(win, 'fetch') ||
+                   (win.Window && Object.getOwnPropertyDescriptor(win.Window.prototype, 'fetch'));
+          } catch (e) {}
+
+          if (!desc || (desc && (!desc.set || !desc.writable))) {
+            try {
+              Object.defineProperty(win, 'fetch', {
+                get: function() {
+                  return activeFetch || (originalFetch ? originalFetch : function() { return Promise.reject(new Error('Fetch unavailable')); });
+                },
+                set: function(newFetch) {
+                  activeFetch = newFetch;
+                },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (defineErr) {
+              try {
+                if (win.Window && win.Window.prototype) {
+                  Object.defineProperty(win.Window.prototype, 'fetch', {
+                    get: function() {
+                      return activeFetch || (originalFetch ? originalFetch : function() { return Promise.reject(new Error('Fetch unavailable')); });
+                    },
+                    set: function(newFetch) {
+                      activeFetch = newFetch;
+                    },
+                    configurable: true,
+                    enumerable: true
+                  });
+                }
+              } catch (protoErr) {}
+            }
+          }
+        } catch (globalErr) {}
+      })();
+    </script>
+    <meta name="theme-color" content="#134e4a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="চৌদ্দগ্রাম" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icon-192.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-slate-100 font-['Hind_Siliguri',sans-serif] text-slate-800 antialiased selection:bg-teal-700 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

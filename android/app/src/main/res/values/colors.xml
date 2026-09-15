@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="teal_primary">#0F766E</color>
+    <color name="teal_dark">#115E59</color>
+    <color name="teal_light">#14B8A6</color>
+    <color name="green_brand">#22C55E</color>
+    <color name="orange_brand">#F97316</color>
+    <color name="orange_dark">#EA580C</color>
+    <color name="blue_pale">#E0F2FE</color>
+    <color name="white">#FFFFFF</color>
+    <color name="slate_bg">#F8FAFC</color>
+</resources>

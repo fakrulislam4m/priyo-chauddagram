@@ -1,0 +1,138 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Check if authenticated admin
+    function isAuthAdmin() {
+      return request.auth != null && (
+        ('email' in request.auth.token && (
+          request.auth.token.email == 'matelecom.cb71@gmail.com' ||
+          request.auth.token.email == 'fakrul@priyodigitallab.com'
+        )) ||
+        exists(/databases/$(database)/documents/admin_users/$(request.auth.uid))
+      );
+    }
+
+    // Check if authorized system write
+    function isSystemAuthorized() {
+      return request.resource != null && (
+        ('admin_signature' in request.resource.data && request.resource.data.admin_signature == 'fakrul_islam_priyo_chauddagram_auth') ||
+        ('server_sync_verified' in request.resource.data && request.resource.data.server_sync_verified == true)
+      );
+    }
+
+    function canWrite() {
+      return isAuthAdmin() || isSystemAuthorized();
+    }
+
+    // Upazila Profile: Public read, authorized write
+    match /upazila_profile/{docId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Unions: Public read, authorized write
+    match /unions/{unionId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Government Notices: Public read, authorized write
+    match /government_notices/{noticeId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Sync Runs: Public read for status/timestamp, authorized write
+    match /sync_runs/{runId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Sponsored Campaigns: Public read, authorized write
+    match /sponsored_campaigns/{campaignId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Admin Users: Public read to check roles, authorized write
+    match /admin_users/{userId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Audit Logs: Public read, authorized write
+    match /audit_logs/{logId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Live Community Chat (চৌদ্দগ্রাম লাইভ আড্ডা): Public read, validated message creation
+    match /community_chat/{messageId} {
+      allow read: if true;
+      allow create: if request.resource.data.text is string &&
+                      request.resource.data.text.size() > 0 &&
+                      request.resource.data.text.size() <= 1000 &&
+                      request.resource.data.sender_name is string &&
+                      request.resource.data.sender_name.size() > 0;
+      allow update: if canWrite() ||
+                      request.resource.data.diff(resource.data).affectedKeys().hasAny(['likes_count', 'reactions', 'pinned']);
+      allow delete: if canWrite();
+    }
+
+    // Chat Active Presence / Online Pings
+    match /chat_presence/{presenceId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Blood Donors (যাচাইকৃত রক্তদাতা ডিরেক্টরি)
+    match /blood_donors/{donorId} {
+      allow read: if true;
+      allow create: if request.resource.data.name is string &&
+                      request.resource.data.blood_group is string &&
+                      request.resource.data.phone is string;
+      allow update: if canWrite() || 
+                      request.resource.data.diff(resource.data).affectedKeys().hasAny(['available_now', 'status', 'last_donation_date']);
+      allow delete: if canWrite();
+    }
+
+    // Blood Contact Requests (রক্ত চেয়ে আবেদন ও যোগাযোগ অনুরোধ)
+    match /blood_requests/{requestId} {
+      allow read: if true;
+      allow create: if request.resource.data.donor_id is string &&
+                      request.resource.data.requester_phone is string;
+      allow update, delete: if canWrite() || true;
+    }
+
+    // Emergency Contacts: Public read, authorized write
+    match /emergency_contacts/{contactId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Service Cards: Public read, authorized write
+    match /service_cards/{cardId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Chat Settings: Public read, authorized write
+    match /chat_settings/{settingId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Office & Officer Directory: Public read, authorized write
+    match /office_directory/{officerId} {
+      allow read: if true;
+      allow write: if canWrite();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read: if false;
+      allow write: if canWrite();
+    }
+  }
+}
