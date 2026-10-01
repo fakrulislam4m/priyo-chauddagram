@@ -129,10 +129,11 @@ export const InstallModal: React.FC<InstallModalProps> = ({ isOpen, onClose }) =
             </p>
 
             <ol className="space-y-2 text-xs list-decimal list-inside text-slate-700">
-              <li>AI Studio-র উপরের ডানদিকের <strong>Settings মেনু</strong> থেকে <strong>Download ZIP</strong> অথবা <strong>Export to GitHub</strong> করুন।</li>
-              <li>ফাইলটি আনজিপ করে <strong>Android Studio</strong> দিয়ে <code>android</code> ফোল্ডারটি ওপেন করুন।</li>
-              <li>উপরের মেনু থেকে <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong> চাপুন।</li>
-              <li>কয়েক সেকেন্ডে আপনার জন্য <strong>app-debug.apk</strong> ফাইল তৈরি হয়ে যাবে, যা সরাসরি যে কোনো অ্যান্ড্রয়েড ফোনে ইনস্টল করা যাবে।</li>
+              <li><strong>কম্পিউটার ছাড়া সরাসরি গিটহাব থেকে APK ডাউনলোড:</strong> AI Studio থেকে প্রজেক্টটি আপনার GitHub (<code>fakrulislam4m/priyo-chauddagram</code>)-এ সিঙ্ক করার পর গিটহাবের <strong>Actions</strong> ট্যাবে যান। সেখানে <strong>Build Android APK</strong> অটোমেটিক রান হয়ে <code>Priyo-Chauddagram-APK</code> ফাইল তৈরি করবে।</li>
+              <li><strong>কম্পিউটারে ক্লোন করে বিল্ড করতে চাইলে:</strong> আপনার কম্পিউটারের টার্মিনালে নিচের কমান্ডটি রান করুন:<br />
+                <code className="block mt-1 p-1.5 bg-slate-200/80 rounded text-[11px] font-mono select-all">git clone https://github.com/fakrulislam4m/priyo-chauddagram.git</code>
+              </li>
+              <li>এরপর <strong>Android Studio</strong> দিয়ে <code>android</code> ফোল্ডারটি ওপেন করে <strong>Build &gt; Build APK(s)</strong> চাপলে <code>app-debug.apk</code> তৈরি হয়ে যাবে।</li>
             </ol>
           </div>
 

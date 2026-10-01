@@ -2,8 +2,8 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
   getFirestore, 
   initializeFirestore, 
-  persistentLocalCache, 
-  persistentMultipleTabManager 
+  memoryLocalCache,
+  setLogLevel
 } from 'firebase/firestore';
 import { 
   getAuth, 
@@ -22,16 +22,19 @@ import firebaseConfig from '../firebase-applet-config.json';
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Use the exact databaseId from config with safe fallback
+// Use memoryLocalCache to prevent multi-tab and iframe IndexedDB primary lease lock conflicts
 let firestoreDb;
 try {
   firestoreDb = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    localCache: memoryLocalCache()
   }, firebaseConfig.firestoreDatabaseId || '(default)');
 } catch (e) {
-  // If already initialized or if persistent cache fails in iframe/restricted environment
+  // Fallback if already initialized
   firestoreDb = getFirestore(app, firebaseConfig.firestoreDatabaseId || '(default)');
 }
+
+// Suppress non-critical Firestore internal warning logs
+setLogLevel('error');
 
 export const db = firestoreDb;
 
