@@ -1,3 +1,6 @@
+# গিটহাব (GitHub Actions) থেকে অটোমেটিক APK ফাইল তৈরি করার জন্য:
+# গিটহাব রিপোজিটরির "Actions" ট্যাবে গিয়ে "set up a workflow yourself"-এ ক্লিক করে নিচের কোডটুকু পেস্ট করে Commit করুন।
+
 name: Build Android APK
 
 on:
