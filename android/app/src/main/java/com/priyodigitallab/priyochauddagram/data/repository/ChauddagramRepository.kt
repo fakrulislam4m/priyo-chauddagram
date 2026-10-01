@@ -147,9 +147,9 @@ class ChauddagramRepository(
             "updated_by" to "Fakrul Islam",
             "admin_signature" to adminSignature
         )
-        if (campaign.specialty_bn != null) payload["specialty_bn"] = campaign.specialty_bn
-        if (campaign.chamber_days != null) payload["chamber_days"] = campaign.chamber_days
-        if (campaign.payment_reference != null) payload["payment_reference"] = campaign.payment_reference
+        campaign.specialty_bn?.let { payload["specialty_bn"] = it }
+        campaign.chamber_days?.let { payload["chamber_days"] = it }
+        campaign.payment_reference?.let { payload["payment_reference"] = it }
 
         firestore.collection("sponsored_campaigns").document(campaign.id)
             .set(payload, com.google.firebase.firestore.SetOptions.merge())

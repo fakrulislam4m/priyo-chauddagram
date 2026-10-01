@@ -325,7 +325,7 @@ fun HomeScreen(
                                     )
                                     if (!camp.specialty_bn.isNullOrBlank()) {
                                         Text(
-                                            text = camp.specialty_bn,
+                                            text = camp.specialty_bn.orEmpty(),
                                             fontSize = 11.sp,
                                             color = SlateMuted,
                                             maxLines = 1
