@@ -21,8 +21,9 @@ jobs:
 
       - name: Accept Android SDK Licenses
         run: |
-          if [ -d "$ANDROID_HOME/cmdline-tools/latest/bin" ]; then
-            yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$PATH"
+          if command -v sdkmanager > /dev/null 2>&1; then
+            yes | sdkmanager --licenses > /dev/null 2>&1 || true
           fi
 
       - name: Setup Gradle
