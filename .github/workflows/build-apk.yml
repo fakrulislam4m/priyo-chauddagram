@@ -32,6 +32,48 @@ jobs:
             sdkmanager "platforms;android-35" "build-tools;35.0.0" || true
           fi
 
+      - name: Configure Google Services
+        run: |
+          mkdir -p android/app
+          cat << 'EOF' > android/app/google-services.json
+          {
+            "project_info": {
+              "project_number": "645062772426",
+              "firebase_url": "https://gen-lang-client-0431558891-default-rtdb.firebaseio.com",
+              "project_id": "gen-lang-client-0431558891",
+              "storage_bucket": "gen-lang-client-0431558891.firebasestorage.app"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:645062772426:android:b84b5f18f8dc0ba1521633",
+                  "android_client_info": {
+                    "package_name": "com.priyodigitallab.priyochauddagram"
+                  }
+                },
+                "oauth_client": [
+                  {
+                    "client_id": "645062772426-4s7ij0hph3rlkk5gdfonkr8o63vrjsgk.apps.googleusercontent.com",
+                    "client_type": 3
+                  }
+                ],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyAW0lU07KcDzkn73OYsB0c7kiVOle_70Ko"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+          echo "Verified android/app/google-services.json"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
