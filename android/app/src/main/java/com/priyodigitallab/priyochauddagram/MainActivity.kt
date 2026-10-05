@@ -7,8 +7,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -16,29 +18,31 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.webkit.WebViewAssetLoader
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var webView: WebView
     private lateinit var progressBar: ProgressBar
 
-    // The live production app URL featuring complete data, real-time Firebase, and all tabs
-    private val appUrl = "https://ais-pre-ogrrff3tms2pxykenoy4tm-792759327395.asia-southeast1.run.app"
-
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Root container
         val rootLayout = FrameLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            setBackgroundColor(android.graphics.Color.parseColor("#F8FAFC"))
+            setBackgroundColor(android.graphics.Color.parseColor("#134E4A"))
         }
 
-        // Web view configuration
+        // Configure WebViewAssetLoader to serve local assets under virtual HTTPS domain
+        // This solves Chromium's file:/// CORS restrictions on ES modules completely!
+        val assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
+            .build()
+
         webView = WebView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -48,11 +52,11 @@ class MainActivity : ComponentActivity() {
                 javaScriptEnabled = true
                 domStorageEnabled = true
                 databaseEnabled = true
+                allowFileAccess = true
+                allowContentAccess = true
                 useWideViewPort = true
                 loadWithOverviewMode = true
                 cacheMode = WebSettings.LOAD_DEFAULT
-                allowFileAccess = true
-                allowContentAccess = true
                 setSupportZoom(false)
                 builtInZoomControls = false
                 displayZoomControls = false
@@ -61,6 +65,14 @@ class MainActivity : ComponentActivity() {
             }
 
             webViewClient = object : WebViewClient() {
+                override fun shouldInterceptRequest(
+                    view: WebView?,
+                    request: WebResourceRequest?
+                ): WebResourceResponse? {
+                    val url = request?.url ?: return null
+                    return assetLoader.shouldInterceptRequest(url)
+                }
+
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     val url = request?.url?.toString() ?: return false
                     return handleExternalUrl(url)
@@ -90,10 +102,14 @@ class MainActivity : ComponentActivity() {
                         progressBar.visibility = View.GONE
                     }
                 }
+
+                override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                    android.util.Log.d("PriyoChauddagram", "${consoleMessage?.message()} [line: ${consoleMessage?.lineNumber()}]")
+                    return true
+                }
             }
         }
 
-        // Top loading indicator
         progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
             layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -107,7 +123,7 @@ class MainActivity : ComponentActivity() {
         rootLayout.addView(progressBar)
         setContentView(rootLayout)
 
-        // Native back navigation handling
+        // Native back navigation: go back within the app instead of closing
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (webView.canGoBack()) {
@@ -119,16 +135,16 @@ class MainActivity : ComponentActivity() {
             }
         })
 
-        // Load the complete web application
         if (savedInstanceState == null) {
-            webView.loadUrl(appUrl)
+            // Load the bundled app securely via the virtual HTTPS domain
+            webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
         } else {
             webView.restoreState(savedInstanceState)
         }
     }
 
     private fun handleExternalUrl(url: String): Boolean {
-        // Direct phone dialing for emergency services, blood donors, and union secretaries
+        // Direct phone dialing for emergency services, police, hospital, and blood donors
         if (url.startsWith("tel:")) {
             try {
                 val intent = Intent(Intent.ACTION_DIAL, Uri.parse(url))
@@ -139,7 +155,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Direct email handling
+        // Email
         if (url.startsWith("mailto:")) {
             try {
                 val intent = Intent(Intent.ACTION_SENDTO, Uri.parse(url))
@@ -150,7 +166,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // WhatsApp, SMS, and Maps handling
+        // WhatsApp, SMS, Google Maps
         if (url.startsWith("sms:") || url.contains("api.whatsapp.com") || url.contains("wa.me") || url.startsWith("geo:")) {
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -161,7 +177,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Keep internal app navigation inside the WebView
+        // Keep local assets navigation inside WebView
+        if (url.startsWith("https://appassets.androidplatform.net")) {
+            return false
+        }
+
         return false
     }
 

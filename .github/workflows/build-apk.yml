@@ -76,6 +76,21 @@ jobs:
           EOF
           echo "Verified android/app/google-services.json"
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Bundle Web Application into Android Assets
+        run: |
+          npm ci || npm install
+          npm run build
+          mkdir -p android/app/src/main/assets
+          cp -r dist/* android/app/src/main/assets/
+          mkdir -p android/app/src/main/assets/web
+          cp -r dist/* android/app/src/main/assets/web/
+          echo "Web application assets bundled into android/app/src/main/assets"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:

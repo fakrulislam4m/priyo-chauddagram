@@ -1,0 +1,21 @@
+<svg width="512" height="512" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" fill="#0f766e" />
+  <g transform="translate(10, 10)">
+    <defs>
+      <linearGradient id="mGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#15803d" />
+      </linearGradient>
+      <linearGradient id="mOrangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#ea580c" />
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="50" r="44" fill="#ffffff" />
+    <circle cx="50" cy="46" r="17" fill="url(#mOrangeGrad)" />
+    <path d="M16 66 C 26 50, 42 50, 52 64 C 62 48, 76 50, 84 66 L 84 80 C 84 80, 50 86, 16 80 Z" fill="url(#mGreenGrad)" />
+    <path d="M38 78 C 45 71, 55 72, 62 78" stroke="#0284c7" strokeWidth="3" strokeLinecap="round" />
+    <path d="M48 24 L52 24 L50 18 Z" fill="#f59e0b" />
+    <circle cx="50" cy="30" r="2.5" fill="#f59e0b" />
+  </g>
+</svg>

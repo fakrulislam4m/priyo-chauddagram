@@ -71,5 +71,8 @@ dependencies {
     // Image loading
     implementation(libs.coil.compose)
 
+    // AndroidX WebKit for WebViewAssetLoader
+    implementation("androidx.webkit:webkit:1.12.1")
+
     debugImplementation(libs.androidx.ui.tooling)
 }
