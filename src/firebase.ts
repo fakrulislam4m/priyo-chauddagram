@@ -22,19 +22,21 @@ import firebaseConfig from '../firebase-applet-config.json';
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Use memoryLocalCache to prevent multi-tab and iframe IndexedDB primary lease lock conflicts
+// Use memoryLocalCache to prevent multi-tab and iframe IndexedDB primary lease lock conflicts,
+// and enable auto-detect long polling for reliable connectivity in restricted iframe environments
 let firestoreDb;
 try {
   firestoreDb = initializeFirestore(app, {
-    localCache: memoryLocalCache()
+    localCache: memoryLocalCache(),
+    experimentalAutoDetectLongPolling: true
   }, firebaseConfig.firestoreDatabaseId || '(default)');
 } catch (e) {
   // Fallback if already initialized
   firestoreDb = getFirestore(app, firebaseConfig.firestoreDatabaseId || '(default)');
 }
 
-// Suppress non-critical Firestore internal warning logs
-setLogLevel('error');
+// Suppress internal Firestore connection retry logs so transient reconnects don't trigger error alerts
+setLogLevel('silent');
 
 export const db = firestoreDb;
 

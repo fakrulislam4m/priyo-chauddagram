@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { AppLogo } from './AppLogo';
-import { ShieldCheck, MapPin, Heart, AlertCircle, Trash2, Smartphone } from 'lucide-react';
+import { ShieldCheck, MapPin, Heart, AlertCircle, Trash2 } from 'lucide-react';
 
 interface AboutDeveloperSectionProps {
   lastUpdated?: string;
@@ -36,19 +36,6 @@ export const AboutDeveloperSection: React.FC<AboutDeveloperSectionProps> = ({
         <MapPin size={12} className="text-teal-700" />
         <span>{t('location')}</span>
       </div>
-
-      {/* Mobile Trial & APK Info Button */}
-      {onOpenInstallModal && (
-        <div className="mt-2 mb-3">
-          <button
-            onClick={onOpenInstallModal}
-            className="w-full py-2.5 px-3 bg-gradient-to-r from-teal-800 to-teal-700 hover:from-teal-900 hover:to-teal-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition active:scale-98"
-          >
-            <Smartphone size={15} />
-            <span>মোবাইলে ট্রায়াল ও এপিকে (APK) নির্দেশিকা</span>
-          </button>
-        </div>
-      )}
 
       {/* Developer & Studio Attribution */}
       <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-1">
