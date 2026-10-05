@@ -18,13 +18,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
-      - name: Accept Android SDK Licenses
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses & Install API 35
         run: |
-          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$PATH"
-          if command -v sdkmanager > /dev/null 2>&1; then
-            yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          fi
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -33,10 +35,13 @@ jobs:
 
       - name: Build Debug APK
         working-directory: ./android
-        run: gradle assembleDebug --no-daemon --stacktrace
+        run: |
+          gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: Priyo-Chauddagram-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
