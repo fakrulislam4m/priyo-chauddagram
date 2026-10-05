@@ -123,14 +123,39 @@ class MainActivity : ComponentActivity() {
         rootLayout.addView(progressBar)
         setContentView(rootLayout)
 
-        // Native back navigation: go back within the app instead of closing
+        // Native back navigation: cleanly close modals/subscreens via Javascript, or double-press to exit on root home
+        var backPressedTime: Long = 0
+        var backToast: android.widget.Toast? = null
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (webView.canGoBack()) {
-                    webView.goBack()
-                } else {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
+                // 1. Evaluate Javascript app-level back handler
+                webView.evaluateJavascript("(function() { if (window.__handleAppBack && window.__handleAppBack()) { return true; } return false; })()") { result ->
+                    if (result == "true") {
+                        // Javascript handled it (closed modal or returned to home screen)
+                        return@evaluateJavascript
+                    }
+
+                    // 2. If webview history exists, navigate back
+                    if (webView.canGoBack()) {
+                        webView.goBack()
+                        return@evaluateJavascript
+                    }
+
+                    // 3. User is on clean root home screen: double-press back to exit gracefully
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - backPressedTime < 2000) {
+                        backToast?.cancel()
+                        finish()
+                    } else {
+                        backPressedTime = currentTime
+                        backToast = android.widget.Toast.makeText(
+                            this@MainActivity,
+                            "অ্যাপ থেকে প্রস্থান করতে পুনরায় ব্যাক বাটন চাপুন",
+                            android.widget.Toast.LENGTH_SHORT
+                        )
+                        backToast?.show()
+                    }
                 }
             }
         })

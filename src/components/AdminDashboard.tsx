@@ -478,43 +478,102 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return d.status === donorFilter;
   });
 
+  // Pending donors count
+  const pendingDonorsCount = donors.filter(d => d.status === 'pending_review').length;
+
   return (
-    <div className="w-full min-h-[750px] bg-slate-100 flex flex-col pb-24">
-      {/* Admin Top Navigation Bar */}
-      <div className="bg-slate-900 text-white px-4 py-3 sticky top-0 z-30 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-2.5">
+    <div className="w-full min-h-[750px] bg-slate-50 flex flex-col pb-24 text-slate-800">
+      {/* Executive Admin Top Header */}
+      <div className="bg-[#0F2922] text-white px-4 py-3 sticky top-0 z-30 flex items-center justify-between border-b border-teal-900/50 shadow-sm">
+        <div className="flex items-center gap-3">
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition active:scale-95"
-            title="ফিরে যান"
+            className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition active:scale-95 flex items-center gap-1 text-xs font-semibold"
+            title="হোম পেজে ফিরে যান"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
+            <span className="hidden sm:inline">হোমে ফিরুন</span>
           </button>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <h1 className="text-xs font-bold tracking-tight">চৌদ্দগ্রাম এডমিন কন্ট্রোল সেন্টার</h1>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <h1 className="text-xs sm:text-sm font-extrabold tracking-tight">চৌদ্দগ্রাম কেন্দ্রীয় প্রশাসনিক নিয়ন্ত্রণ কক্ষ</h1>
             </div>
-            <p className="text-[10px] text-slate-400">
-              {adminDisplayName} • {adminRole === 'primary_admin' ? 'প্রধান প্রশাসক (Super Admin)' : 'প্রশাসনিক কর্মকর্তা (Admin)'}
+            <p className="text-[10px] text-teal-200/80 mt-0.5">
+              প্রশাসক: <strong className="text-white font-semibold">{adminDisplayName}</strong> • {adminRole === 'primary_admin' ? 'সুপার এডমিন (Super Admin)' : 'প্রশাসনিক কর্মকর্তা (Admin)'}
             </p>
           </div>
         </div>
 
         <button
           onClick={onClose}
-          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-teal-100 hover:text-white text-xs font-semibold rounded-xl transition border border-white/10"
         >
-          বন্ধ করুন
+          <span>হোমে ফিরুন</span>
         </button>
+      </div>
+
+      {/* KPI Overview Strip */}
+      <div className="bg-white border-b border-slate-200/80 px-4 py-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-4xl mx-auto">
+          <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/70 flex items-center justify-between">
+            <div>
+              <span className="text-[10px] font-semibold text-slate-500 block">সরকারি নোটিশ</span>
+              <span className="text-base font-bold text-slate-800">{notices.length} টি</span>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#087F68] flex items-center justify-center">
+              <FileText size={16} />
+            </div>
+          </div>
+
+          <div className={`p-2.5 rounded-xl border flex items-center justify-between transition ${
+            pendingDonorsCount > 0 
+              ? 'bg-rose-50 border-rose-200 text-rose-900' 
+              : 'bg-slate-50 border-slate-200/70 text-slate-800'
+          }`}>
+            <div>
+              <span className={`text-[10px] font-semibold block ${pendingDonorsCount > 0 ? 'text-rose-600' : 'text-slate-500'}`}>
+                {pendingDonorsCount > 0 ? 'অনুমোদন বাকি রক্তদাতা' : 'রক্তদাতা মোট'}
+              </span>
+              <span className="text-base font-bold">
+                {pendingDonorsCount > 0 ? `${pendingDonorsCount} জন বাকি` : `${donors.length} জন`}
+              </span>
+            </div>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+              pendingDonorsCount > 0 ? 'bg-rose-100 text-rose-600' : 'bg-rose-50 text-rose-500'
+            }`}>
+              <Droplet size={16} />
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/70 flex items-center justify-between">
+            <div>
+              <span className="text-[10px] font-semibold text-slate-500 block">সক্রিয় স্পন্সর</span>
+              <span className="text-base font-bold text-slate-800">{campaigns.length} টি</span>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <DollarSign size={16} />
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/70 flex items-center justify-between">
+            <div>
+              <span className="text-[10px] font-semibold text-slate-500 block">নিরাপত্তা অডিট লগ</span>
+              <span className="text-base font-bold text-slate-800">{auditLogs.length} টি</span>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <History size={16} />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Dynamic Feedback Toast Message */}
       {toastMessage && (
-        <div className={`mx-3.5 mt-3 p-3 rounded-xl text-xs font-bold flex items-center justify-between shadow-md animate-fadeIn ${
+        <div className={`mx-4 mt-3 p-3 rounded-xl text-xs font-bold flex items-center justify-between shadow-sm animate-fadeIn ${
           toastMessage.type === 'success' 
-            ? 'bg-emerald-700 text-white' 
-            : 'bg-rose-700 text-white'
+            ? 'bg-emerald-800 text-white' 
+            : 'bg-rose-800 text-white'
         }`}>
           <div className="flex items-center gap-2">
             {toastMessage.type === 'success' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
@@ -526,19 +585,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* Horizontal Scrolling Admin Tab Bar */}
-      <div className="bg-white border-b border-slate-200 px-2 py-2 sticky top-[49px] z-20 overflow-x-auto no-scrollbar shadow-xs">
-        <div className="flex items-center gap-1 min-w-max">
+      {/* Modern Executive Tab Bar */}
+      <div className="bg-white border-b border-slate-200 px-3 py-2 sticky top-[49px] z-20 overflow-x-auto no-scrollbar shadow-2xs">
+        <div className="flex items-center gap-1.5 min-w-max max-w-4xl mx-auto">
           {[
-            { key: 'notices', label: 'জরুরি ঘোষণা ও নোটিশ', icon: AlertCircle },
-            { key: 'sponsored', label: 'স্পন্সর ব্যানার', icon: Sparkles },
-            { key: 'services', label: 'সেবা কার্ড (১২টি)', icon: Layers },
+            { key: 'notices', label: 'নোটিশ ও জরুরি ঘোষণা', icon: AlertCircle },
+            { key: 'donors', label: 'রক্তদাতা অনুমোদন', icon: Droplet, count: pendingDonorsCount },
             { key: 'contacts', label: 'জরুরি যোগাযোগ', icon: Phone },
-            { key: 'chat', label: 'লাইভ চ্যাট', icon: MessageSquare },
-            { key: 'donors', label: 'রক্তদাতা অনুমোদন', icon: Droplet },
+            { key: 'sponsored', label: 'স্পন্সর প্রচারণা', icon: Sparkles },
             { key: 'officers', label: 'অফিস ও কর্মকর্তা', icon: Building2 },
+            { key: 'services', label: 'নাগরিক সেবা কার্ড', icon: Layers },
+            { key: 'chat', label: 'লাইভ চ্যাট নিয়ন্ত্রণ', icon: MessageSquare },
             { key: 'profile', label: 'উপজেলা ও ইউনিয়ন', icon: MapPin },
-            { key: 'users', label: 'এডমিন ইউজার', icon: Users },
+            { key: 'users', label: 'এডমিন অ্যাক্সেস', icon: Users },
             { key: 'audit', label: 'অডিট লগ', icon: History }
           ].map((tab) => {
             const Icon = tab.icon;
@@ -547,14 +606,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as AdminTabKey)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap relative ${
                   isActive
-                    ? 'bg-[#087F68] text-white shadow-xs'
-                    : 'text-slate-600 hover:bg-slate-100'
+                    ? 'bg-[#087F68] text-white shadow-xs font-bold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 <Icon size={14} />
                 <span>{tab.label}</span>
+                {typeof tab.count === 'number' && tab.count > 0 && (
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                    isActive ? 'bg-white text-rose-700' : 'bg-rose-600 text-white'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             );
           })}

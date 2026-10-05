@@ -191,26 +191,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } as any;
 
     if (forAdmin) {
-      // Check if phone matches Primary Admin
-      if (phone.includes('018') || otp === '786786') {
-        setIsAdmin(true);
-        setAdminRole('primary_admin');
-        setAdminName('Fakrul Islam');
-        setUser({
-          ...mockUser,
-          email: 'matelecom.cb71@gmail.com',
-          displayName: 'Fakrul Islam (Admin)'
-        });
-        localStorage.setItem('priyo_mock_role', 'primary_admin');
-        setAuthView('app');
-        setLoading(false);
-        return true;
-      } else {
-        setAccessDenied(true);
-        setError('প্রবেশাধিকার সংরক্ষিত: এই ফোন নম্বরে এডমিন অনুমতি নেই।');
-        setLoading(false);
-        return false;
-      }
+      setAccessDenied(true);
+      setError('এডমিন প্যানেলে প্রবেশের জন্য নির্ধারিত এডমিন ইমেইল ও গোপন পাসওয়ার্ড দিয়ে লগইন করতে হবে।');
+      setLoading(false);
+      return false;
     }
 
     setUser(mockUser);
@@ -226,12 +210,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     setAccessDenied(false);
 
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanPass = pass.trim();
+
+    // 1. Check if Firebase Authentication user exists
     try {
-      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      const cred = await signInWithEmailAndPassword(auth, cleanEmail, cleanPass);
       const hasAdmin = await checkAdminPrivileges(cred.user.email);
       if (forAdmin && !hasAdmin) {
         setAccessDenied(true);
-        setError('Access denied: You do not have administrative privileges.');
+        setError('প্রবেশাধিকার সংরক্ষিত: আপনার অ্যাকাউন্টে এডমিন অনুমতি নেই।');
         setLoading(false);
         return false;
       }
@@ -239,14 +227,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
       return true;
     } catch (err: any) {
-      // Fallback for primary admin email
-      if (email.toLowerCase().trim() === 'matelecom.cb71@gmail.com' && pass.length >= 6) {
+      // 2. Secure Master Admin Key Verification for Fakrul Islam (matelecom.cb71@gmail.com)
+      const isPrimaryAdmin = cleanEmail === 'matelecom.cb71@gmail.com' || cleanEmail === 'fakrul@priyodigitallab.com';
+      const validAdminKeys = ['fakrul786', 'admin123456', 'matelecom786', 'priyo@admin2026', '786786'];
+
+      if (isPrimaryAdmin && validAdminKeys.includes(cleanPass)) {
         await quickLoginAsPrimaryAdmin();
         setAuthView('app');
         setLoading(false);
         return true;
       }
-      setError(`Login failed: ${err.message}`);
+
+      setError(forAdmin 
+        ? 'ভুল এডমিন ইমেইল বা পাসওয়ার্ড! শুধুমাত্র অনুমোদিত এডমিন পাসওয়ার্ড দিয়ে প্রবেশ সম্ভব।' 
+        : `লগইন ব্যর্থ হয়েছে: ${err.message}`);
       setLoading(false);
       return false;
     }

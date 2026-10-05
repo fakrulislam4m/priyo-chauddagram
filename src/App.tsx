@@ -94,48 +94,119 @@ export function App() {
     };
   }, []);
 
+  // History-aware navigation helper
+  const navigateTo = (screen: 'home' | 'category' | 'admin' | 'chat' | 'blood', categoryKey: string | null = null) => {
+    try {
+      window.history.pushState({ type: 'screen', screen, category: categoryKey }, '');
+    } catch (e) {}
+    setSelectedCategory(categoryKey);
+    setActiveScreen(screen);
+  };
+
+  const openAppModal = (modal: typeof activeModal, extraState?: () => void) => {
+    try {
+      window.history.pushState({ type: 'modal', modal }, '');
+    } catch (e) {}
+    extraState?.();
+    setActiveModal(modal);
+  };
+
+  const navigateBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      if (activeModal !== 'none') {
+        setActiveModal('none');
+        setSelectedUnion(null);
+        setSelectedNotice(null);
+        setSelectedCampaign(null);
+      } else if (profileModalOpen) {
+        setProfileModalOpen(false);
+      } else if (installModalOpen) {
+        setInstallModalOpen(false);
+      } else if (activeScreen !== 'home') {
+        setActiveScreen('home');
+        setSelectedCategory(null);
+      }
+    }
+  };
+
+  // Global back handler accessible to window.onpopstate and Android native bridge
+  useEffect(() => {
+    const handleAppBack = (): boolean => {
+      // 1. If any detail modal is open, close it
+      if (activeModal !== 'none') {
+        setActiveModal('none');
+        setSelectedUnion(null);
+        setSelectedNotice(null);
+        setSelectedCampaign(null);
+        return true;
+      }
+      if (profileModalOpen) {
+        setProfileModalOpen(false);
+        return true;
+      }
+      if (installModalOpen) {
+        setInstallModalOpen(false);
+        return true;
+      }
+      // 2. If inside a subscreen, cleanly go back to home screen
+      if (activeScreen !== 'home') {
+        setActiveScreen('home');
+        setSelectedCategory(null);
+        return true;
+      }
+      // 3. User is already on clean root home screen
+      return false;
+    };
+
+    (window as any).__handleAppBack = handleAppBack;
+
+    const onPopState = () => {
+      handleAppBack();
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => {
+      delete (window as any).__handleAppBack;
+      window.removeEventListener('popstate', onPopState);
+    };
+  }, [activeModal, profileModalOpen, installModalOpen, activeScreen]);
+
   // Handle Quick Actions and Popular Services selection
   const handleSelectService = (key: string) => {
     switch (key) {
       case 'blood':
       case 'blood_donors':
         setPreselectedBloodGroup(undefined);
-        setActiveScreen('blood');
+        navigateTo('blood');
         break;
       case 'chat':
-        setActiveScreen('chat');
+        navigateTo('chat');
         break;
       case 'notices':
-        setSelectedCategory('notices');
-        setActiveScreen('category');
+        navigateTo('category', 'notices');
         break;
       case 'complaint':
       case 'complaints':
-        // Complaints category
-        setSelectedCategory('complaints');
-        setActiveScreen('category');
+        navigateTo('category', 'complaints');
         break;
       case 'ambulance':
       case 'healthcare':
-        setSelectedCategory('health');
-        setActiveScreen('category');
+        navigateTo('category', 'health');
         break;
       case 'certificate':
       case 'citizen_services':
-        setSelectedCategory('services');
-        setActiveScreen('category');
+        navigateTo('category', 'services');
         break;
       case 'agriculture':
-        setSelectedCategory('agriculture');
-        setActiveScreen('category');
+        navigateTo('category', 'agriculture');
         break;
       case 'education':
-        setSelectedCategory('education');
-        setActiveScreen('category');
+        navigateTo('category', 'education');
         break;
       case 'land_services':
-        setSelectedCategory('land');
-        setActiveScreen('category');
+        navigateTo('category', 'land');
         break;
       case 'office_directory':
       case 'social_welfare':
@@ -143,8 +214,7 @@ export function App() {
       case 'tourism':
       case 'local_business':
       default:
-        setSelectedCategory(key);
-        setActiveScreen('category');
+        navigateTo('category', key);
         break;
     }
   };
@@ -153,20 +223,20 @@ export function App() {
   const handleTabChange = (tab: TabKey) => {
     switch (tab) {
       case 'home':
-        setActiveScreen('home');
+        navigateTo('home');
         break;
       case 'services':
-        setSelectedCategory('services');
-        setActiveScreen('category');
+        navigateTo('category', 'services');
         break;
       case 'chat':
-        setActiveScreen('chat');
+        navigateTo('chat');
         break;
       case 'blood':
         setPreselectedBloodGroup(undefined);
-        setActiveScreen('blood');
+        navigateTo('blood');
         break;
       case 'profile':
+        try { window.history.pushState({ type: 'profile_modal' }, ''); } catch (e) {}
         setProfileModalOpen(true);
         break;
     }
@@ -175,9 +245,9 @@ export function App() {
   // Handle open admin
   const handleOpenAdmin = () => {
     if (isAdmin) {
-      setActiveScreen('admin');
+      navigateTo('admin');
     } else {
-      setActiveModal('access_denied');
+      openAppModal('access_denied');
     }
   };
 
@@ -200,7 +270,7 @@ export function App() {
     return (
       <AndroidFrame>
         <BloodDonorScreen 
-          onBack={() => setActiveScreen('home')} 
+          onBack={navigateBack} 
           initialGroup={preselectedBloodGroup}
         />
         <BottomNav 
@@ -215,7 +285,7 @@ export function App() {
   if (activeScreen === 'chat') {
     return (
       <AndroidFrame>
-        <LiveChatScreen onBack={() => setActiveScreen('home')} />
+        <LiveChatScreen onBack={navigateBack} />
         <BottomNav 
           activeTab="chat" 
           onTabChange={handleTabChange} 
@@ -238,7 +308,7 @@ export function App() {
               আপনার অ্যাকাউন্টে এডমিন প্যানেল ব্যবহারের প্রশাসনিক অনুমতি নেই।
             </p>
             <button
-              onClick={() => setActiveScreen('home')}
+              onClick={navigateBack}
               className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl"
             >
               হোম স্ক্রিনে ফিরে যান
@@ -257,7 +327,7 @@ export function App() {
           syncRuns={syncRuns}
           adminUsers={adminUsers}
           auditLogs={auditLogs}
-          onClose={() => setActiveScreen('home')}
+          onClose={navigateBack}
         />
       </AndroidFrame>
     );
@@ -273,11 +343,11 @@ export function App() {
           unions={unions}
           notices={notices}
           campaigns={campaigns}
-          onBack={() => setActiveScreen('home')}
-          onSelectUnion={(u) => { setSelectedUnion(u); setActiveModal('union'); }}
-          onSelectNotice={(n) => { setSelectedNotice(n); setActiveModal('notice'); }}
-          onSelectCampaign={(c) => { setSelectedCampaign(c); setActiveModal('campaign'); }}
-          onOpenSponsorGuidelines={() => setActiveModal('sponsor_info')}
+          onBack={navigateBack}
+          onSelectUnion={(u) => openAppModal('union', () => setSelectedUnion(u))}
+          onSelectNotice={(n) => openAppModal('notice', () => setSelectedNotice(n))}
+          onSelectCampaign={(c) => openAppModal('campaign', () => setSelectedCampaign(c))}
+          onOpenSponsorGuidelines={() => openAppModal('sponsor_info')}
         />
 
         <BottomNav 
@@ -291,7 +361,7 @@ export function App() {
           selectedNotice={selectedNotice}
           selectedCampaign={selectedCampaign}
           profile={profile}
-          onClose={() => setActiveModal('none')}
+          onClose={navigateBack}
           onConfirmDeleteAccount={handleConfirmAccountDeletion}
         />
       </AndroidFrame>
@@ -304,13 +374,18 @@ export function App() {
       {/* 1. Top Header: Upazila logo, Upazila name, Notification icon, Profile/Menu, Language Switcher */}
       <HeaderAppBar
         onOpenAdmin={handleOpenAdmin}
-        onOpenProfile={() => setProfileModalOpen(true)}
-        onOpenChat={() => setActiveScreen('chat')}
-        onOpenInstallModal={() => setInstallModalOpen(true)}
+        onOpenProfile={() => {
+          try { window.history.pushState({ type: 'profile_modal' }, ''); } catch (e) {}
+          setProfileModalOpen(true);
+        }}
+        onOpenChat={() => navigateTo('chat')}
+        onOpenInstallModal={() => {
+          try { window.history.pushState({ type: 'install_modal' }, ''); } catch (e) {}
+          setInstallModalOpen(true);
+        }}
         onOpenNotifications={() => {
           if (notices.length > 0) {
-            setSelectedNotice(notices[0]);
-            setActiveModal('notice');
+            openAppModal('notice', () => setSelectedNotice(notices[0]));
           } else {
             handleSelectService('notices');
           }
@@ -325,20 +400,20 @@ export function App() {
         {/* 3. Sponsor Banner Carousel: Navy Blue #254E70, Orange accent, Verified badge */}
         <SponsoredCarousel
           campaigns={campaigns}
-          onSelectCampaign={(c) => { setSelectedCampaign(c); setActiveModal('campaign'); }}
-          onOpenSponsorInfo={() => setActiveModal('sponsor_info')}
+          onSelectCampaign={(c) => openAppModal('campaign', () => setSelectedCampaign(c))}
+          onOpenSponsorInfo={() => openAppModal('sponsor_info')}
         />
 
         {/* 4. জরুরি ঘোষণা: Emergency notice banner if priority notices exist */}
         <EmergencyNoticeBanner
           notices={notices}
-          onSelectNotice={(n) => { setSelectedNotice(n); setActiveModal('notice'); }}
+          onSelectNotice={(n) => openAppModal('notice', () => setSelectedNotice(n))}
         />
 
         {/* 5. Live Chat Highlight: "কোনো সাহায্য দরকার?", "উপজেলার সেবা সম্পর্কে জানতে কথা বলুন" */}
         <LiveChatHighlight
-          onOpenChat={() => setActiveScreen('chat')}
-          onOpenFAQ={() => setActiveScreen('chat')}
+          onOpenChat={() => navigateTo('chat')}
+          onOpenFAQ={() => navigateTo('chat')}
         />
 
         {/* 6. দ্রুত সেবা: 5 Quick Action Chips */}
@@ -350,7 +425,7 @@ export function App() {
         <BloodDonorHighlight
           onOpenBloodScreen={(grp) => {
             setPreselectedBloodGroup(grp);
-            setActiveScreen('blood');
+            navigateTo('blood');
           }}
         />
 
@@ -362,7 +437,7 @@ export function App() {
         {/* 9. সর্বশেষ নোটিশ: 3 recent notices with category badges and view all */}
         <LatestNoticesSection
           notices={notices}
-          onSelectNotice={(n) => { setSelectedNotice(n); setActiveModal('notice'); }}
+          onSelectNotice={(n) => openAppModal('notice', () => setSelectedNotice(n))}
           onViewAllNotices={() => handleSelectService('notices')}
         />
 
@@ -374,7 +449,7 @@ export function App() {
           <div className="mx-3.5 mb-3">
             <AdminCard
               onOpenAdmin={handleOpenAdmin}
-              onUnauthorizedClick={() => setActiveModal('access_denied')}
+              onUnauthorizedClick={() => openAppModal('access_denied')}
             />
           </div>
         )}
@@ -382,8 +457,11 @@ export function App() {
         {/* Civic disclaimer and Developer Footer */}
         <AboutDeveloperSection
           lastUpdated={profile?.updated_at}
-          onOpenAccountDeletion={() => setActiveModal('account_delete')}
-          onOpenInstallModal={() => setInstallModalOpen(true)}
+          onOpenAccountDeletion={() => openAppModal('account_delete')}
+          onOpenInstallModal={() => {
+            try { window.history.pushState({ type: 'install_modal' }, ''); } catch (e) {}
+            setInstallModalOpen(true);
+          }}
         />
       </div>
 
@@ -396,15 +474,15 @@ export function App() {
       {/* Mobile Trial & APK Install Modal */}
       <InstallModal
         isOpen={installModalOpen}
-        onClose={() => setInstallModalOpen(false)}
+        onClose={navigateBack}
       />
 
       {/* User Account / Profile Sheet */}
       <UserProfileModal
         isOpen={profileModalOpen}
-        onClose={() => setProfileModalOpen(false)}
+        onClose={navigateBack}
         onOpenAdmin={handleOpenAdmin}
-        onRequestDeleteAccount={() => { setProfileModalOpen(false); setActiveModal('account_delete'); }}
+        onRequestDeleteAccount={() => { setProfileModalOpen(false); openAppModal('account_delete'); }}
       />
 
       {/* Detail Dialogs */}
@@ -414,7 +492,7 @@ export function App() {
         selectedNotice={selectedNotice}
         selectedCampaign={selectedCampaign}
         profile={profile}
-        onClose={() => setActiveModal('none')}
+        onClose={navigateBack}
         onConfirmDeleteAccount={handleConfirmAccountDeletion}
       />
     </AndroidFrame>

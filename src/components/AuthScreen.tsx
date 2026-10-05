@@ -371,17 +371,6 @@ export const AuthScreen: React.FC = () => {
               </button>
             </div>
           )}
-
-          {/* Fast Switch for testing */}
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-[10px] text-slate-400">টেস্ট মোড:</span>
-            <button
-              onClick={quickLoginAsRegularUser}
-              className="text-[11px] text-teal-700 font-semibold hover:underline"
-            >
-              {lang === 'bn' ? '১-ক্লিকে ইউজার লগইন টেস্ট' : '1-Click User Login Test'}
-            </button>
-          </div>
         </div>
       )}
 
@@ -443,22 +432,10 @@ export const AuthScreen: React.FC = () => {
             <button
               onClick={handleAdminLogin}
               disabled={loading}
-              className="w-full py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold shadow-xs transition"
+              className="w-full py-2.5 bg-[#087F68] hover:bg-[#075E54] text-white rounded-xl text-xs font-bold shadow-xs transition"
             >
               {loading ? t('loading') : (lang === 'bn' ? 'এডমিন প্যানেলে প্রবেশ করুন' : 'Enter Admin Management')}
             </button>
-
-            {/* Quick Demo Primary Admin Switch */}
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] text-slate-400">{lang === 'bn' ? 'পর্যালোচনা সুবিধা:' : 'Review Shortcut:'}</span>
-              <button
-                onClick={quickLoginAsPrimaryAdmin}
-                className="text-[11px] text-orange-700 font-bold hover:underline flex items-center gap-1"
-              >
-                <Sparkles size={12} />
-                <span>{lang === 'bn' ? 'ফখরুল ইসলাম (Primary Admin) হিসেবে প্রবেশ' : 'Login as Fakrul Islam (Admin)'}</span>
-              </button>
-            </div>
           </div>
         </div>
       )}
